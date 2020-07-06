@@ -115,7 +115,7 @@ class Contact {
   String image;
 
   Contact.fromMap(Map map) {
-    // para armazenar os contatos em forma de mapa
+    // para armazenar os contatos em forma de mapas
     id = map[idColumn];
     name = map[nameColumn];
     email = map[emailColumn];
