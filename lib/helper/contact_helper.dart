@@ -69,39 +69,39 @@ class ContactHelper {
 //deletar contato
   Future<int> deleteContact(int id) async {
     Database dbContact = await db;
-    return await dbContact.delete(contactTable, where: "$idColumn = ?", whereArgs: ]id]);
-
+    return await dbContact
+        .delete(contactTable, where: "$idColumn = ?", whereArgs: [id]);
   }
 
   //editar(atualizar contato)
-  Future<int> updateContact(Contact contact) async{
+  Future<int> updateContact(Contact contact) async {
     Database dbContact = await db;
     return await dbContact.update(contactTable, contact.toMap(),
-    where: "$idColumn = ?",
-    whereArgs: [contact.id]);
+        where: "$idColumn = ?", whereArgs: [contact.id]);
   }
 
   //recuperar todos os contatos
-   Future<List> getAllContacts() async{
+  Future<List> getAllContacts() async {
     Database dbContacts = await db;
     List listMap = await dbContacts.rawQuery("SELECT * FROM $contactTable");
     List<Contact> listContact = List();
-    for(Map m in listMap){
+    for (Map m in listMap) {
       listContact.add(Contact.fromMap(m));
     }
     return listContact;
   }
 
   //OBTER NUMERO DE CONTATOS DA LISTA
-  Future<int> getNumber() async{
+  Future<int> getNumber() async {
     Database dbContact = await db;
-    return Sqflite.firstIntValue(await dbContact.rawQuery("SELECT COUNT(*) FROM $contactTable"));
+    return Sqflite.firstIntValue(
+        await dbContact.rawQuery("SELECT COUNT(*) FROM $contactTable"));
   }
 
   //fechar o banco de dados
-  Future closeDb() async{
+  Future closeDb() async {
     Database dbContact = await db;
-    dbContact.close();     
+    dbContact.close();
   }
 
   //FIM CLASSE CONTACT HELPER
@@ -139,7 +139,6 @@ class Contact {
 
   @override
   String toString() {
-    // TODO: implement toString
     return "Contatc(id: $id, name: $name, email: $email, phone: $phone, image: $image)";
   }
 }
