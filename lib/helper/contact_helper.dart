@@ -114,6 +114,8 @@ class Contact {
   String phone;
   String image;
 
+  Contact();
+
   Contact.fromMap(Map map) {
     // para armazenar os contatos em forma de mapas
     id = map[idColumn];

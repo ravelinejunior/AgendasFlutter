@@ -1,3 +1,4 @@
+import 'package:agenda_app/ui/home_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,5 +17,6 @@ void main() {
               borderRadius: BorderRadius.all(Radius.circular(100))),
           hintStyle: TextStyle(color: Colors.amber),
         )),
+    home: HomePage(),
   ));
 }
