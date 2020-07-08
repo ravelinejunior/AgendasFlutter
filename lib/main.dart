@@ -1,4 +1,3 @@
-import 'package:agenda_app/ui/contact_page.dart';
 import 'package:agenda_app/ui/home_page.dart';
 import 'package:flutter/material.dart';
 
