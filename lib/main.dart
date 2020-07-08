@@ -1,3 +1,4 @@
+import 'package:agenda_app/ui/contact_page.dart';
 import 'package:agenda_app/ui/home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -6,16 +7,16 @@ void main() {
     title: "Agenda",
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-        hintColor: Colors.amber,
-        primaryColor: Colors.white,
+        hintColor: Colors.grey,
+        primaryColor: Colors.black,
         inputDecorationTheme: InputDecorationTheme(
           enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: BorderSide(color: Colors.grey),
               borderRadius: BorderRadius.all(Radius.circular(100))),
           focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.amber),
-              borderRadius: BorderRadius.all(Radius.circular(100))),
-          hintStyle: TextStyle(color: Colors.amber),
+              borderSide: BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.all(Radius.circular(50))),
+          hintStyle: TextStyle(color: Colors.grey),
         )),
     home: HomePage(),
   ));

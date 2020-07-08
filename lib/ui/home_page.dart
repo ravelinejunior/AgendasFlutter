@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:agenda_app/helper/contact_helper.dart';
+import 'package:agenda_app/ui/contact_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,12 +17,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    helper
-        .getAllContacts()
-        .then((list) => //para atualizar a lista, setar um setState
-            setState(() {
-              contactList = list;
-            }));
+    _getAllContacts();
   }
 
   @override
@@ -43,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   //fab
   Widget fab() {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: _showContactPage,
       child: Icon(Icons.add),
       backgroundColor: Colors.red,
       splashColor: Colors.amber,
@@ -69,8 +65,8 @@ class _HomePageState extends State<HomePage> {
   Widget _contactCard(BuildContext context, int index) {
     return GestureDetector(
       child: Card(
-        color: Colors.white70,
-        elevation: 10,
+        color: Colors.white,
+        elevation: 2,
         child: Padding(
           padding: EdgeInsets.all(10.0),
           child: Row(
@@ -93,7 +89,13 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     _textoNome(index),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                    ),
                     _textoEmail(index),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                    ),
                     _textoPhone(index),
                   ],
                 ),
@@ -102,42 +104,150 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+      onTap: () {
+        _showOptions(context, index);
+        //_showContactPage(contact: contactList[index]);
+      },
     );
+  }
+
+  //show options
+  void _showOptions(BuildContext context, int index) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return BottomSheet(
+            builder: (context) {
+              return Container(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: FlatButton(
+                        onPressed: () {},
+                        child: Text(
+                          "Ligar",
+                          style: TextStyle(color: Colors.red, fontSize: 20.0),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: FlatButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showContactPage(contact: contactList[index]);
+                        },
+                        child: Text(
+                          "Editar",
+                          style: TextStyle(color: Colors.red, fontSize: 20.0),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: FlatButton(
+                        onPressed: () {
+                          helper.deleteContact(contactList[index].id);
+                          setState(() {
+                            contactList.removeAt(index);
+                            Navigator.pop(context);
+                          });
+                        },
+                        child: Text(
+                          "Excluir",
+                          style: TextStyle(color: Colors.red, fontSize: 20.0),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            onClosing: () {},
+          );
+        });
   }
 
   //texto nome
   Widget _textoNome(int index) {
-    return Text(
-        //caso nome seja vazio
+    return SizedBox(
+      width: 270,
+      child: Text(
+        //caso nome seja vazio,
         contactList[index].name ?? "",
         style: TextStyle(
           color: Colors.grey[700],
-          fontSize: 20.0,
+          fontSize: 16.0,
           fontWeight: FontWeight.bold,
-        ));
+        ),
+        overflow: TextOverflow.fade,
+        softWrap: false,
+      ),
+    );
   }
 
   //texto email
   Widget _textoEmail(int index) {
     return Text(
-        //caso nome seja vazio
-        contactList[index].email ?? "",
-        style: TextStyle(
-          color: Colors.grey[700],
-          fontSize: 18.0,
-          fontWeight: FontWeight.normal,
-        ));
+      //caso nome seja vazio
+      contactList[index].email ?? "",
+      style: TextStyle(
+        color: Colors.grey[700],
+        fontSize: 14.0,
+        fontWeight: FontWeight.normal,
+      ),
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+    );
   }
 
   //texto phone
   Widget _textoPhone(int index) {
     return Text(
-        //caso nome seja vazio
-        contactList[index].phone ?? "",
-        style: TextStyle(
-          color: Colors.grey[700],
-          fontSize: 18.0,
-          fontWeight: FontWeight.normal,
-        ));
+      //caso nome seja vazio
+      contactList[index].phone ?? "",
+      style: TextStyle(
+        color: Colors.grey[700],
+        fontSize: 14.0,
+        fontWeight: FontWeight.normal,
+      ),
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+    );
+  }
+
+  //exibir tela de contatos
+  void _showContactPage({Contact contact}) async {
+    final recContact = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ContactPage(
+          contact: contact,
+        ),
+      ),
+    );
+//caso ele receba um novo contato
+    if (recContact != null) {
+      if (contact != null) {
+        await helper.updateContact(recContact);
+        _getAllContacts();
+      } else {
+        //caso ele receba um contato porem nós não enviemos nenhum contato
+        await helper.saveContact(recContact);
+      }
+      _getAllContacts();
+    }
+  }
+
+  void _getAllContacts() {
+    helper.getAllContacts().then(
+          (list) => //para atualizar a lista, setar um setState
+              setState(() {
+            contactList = list;
+          }),
+        );
   }
 }
