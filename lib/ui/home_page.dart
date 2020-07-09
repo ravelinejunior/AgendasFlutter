@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:agenda_app/helper/contact_helper.dart';
 import 'package:agenda_app/ui/contact_page.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+enum OrderOptions { order_az, order_za }
 
 class HomePage extends StatefulWidget {
   @override
@@ -58,7 +61,39 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.red,
       elevation: 10.0,
       centerTitle: true,
+      actions: <Widget>[
+        PopupMenuButton<OrderOptions>(
+          itemBuilder: (context) => <PopupMenuEntry<OrderOptions>>[
+            const PopupMenuItem<OrderOptions>(
+              child: Text("Ordernar de A-Z"),
+              value: OrderOptions.order_az,
+            ),
+            const PopupMenuItem<OrderOptions>(
+              child: Text("Ordernar de Z-A"),
+              value: OrderOptions.order_za,
+            ),
+          ],
+          onSelected: _orderList,
+        ),
+      ],
     );
+  }
+
+  //função de ordenacao
+  void _orderList(OrderOptions result) {
+    switch (result) {
+      case OrderOptions.order_az:
+        contactList.sort((a, b) {
+          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        });
+        break;
+      case OrderOptions.order_za:
+        contactList.sort((a, b) {
+          return b.name.toLowerCase().compareTo(a.name.toLowerCase());
+        });
+        break;
+    }
+    setState(() {});
   }
 
   //contact card
@@ -84,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(right: 7.0),
+                padding: EdgeInsets.only(left: 7.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -126,7 +161,10 @@ class _HomePageState extends State<HomePage> {
                     Padding(
                       padding: EdgeInsets.all(10.0),
                       child: FlatButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          launch("tel:${contactList[index].phone}");
+                          Navigator.pop(context);
+                        },
                         child: Text(
                           "Ligar",
                           style: TextStyle(color: Colors.red, fontSize: 20.0),
