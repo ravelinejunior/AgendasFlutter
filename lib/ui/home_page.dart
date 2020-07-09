@@ -230,7 +230,7 @@ class _HomePageState extends State<HomePage> {
   //texto email
   Widget _textoEmail(int index) {
     return Text(
-      //caso nome seja vazio
+      //caso nome seja vazio demais
       contactList[index].email ?? "",
       style: TextStyle(
         color: Colors.grey[700],
