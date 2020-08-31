@@ -12,7 +12,7 @@ void main() {
     supportedLocales: [
       Locale("pt"),
     ],
-    title: "Agenda",
+    title: "Agenda Clients",
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
         hintColor: Colors.grey,
