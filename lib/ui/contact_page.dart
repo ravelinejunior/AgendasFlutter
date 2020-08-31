@@ -1,12 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:agenda_app/helper/contact_helper.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ContactPage extends StatefulWidget {
   final Contact contact;
-  ContactPage({this.contact});
+  int numberList;
+  ContactPage({this.contact, this.numberList});
   @override
   _ContactPageState createState() => _ContactPageState();
 }
@@ -14,10 +17,32 @@ class ContactPage extends StatefulWidget {
 class _ContactPageState extends State<ContactPage> {
   Contact _editedContact;
   bool _userEdited = false;
+  List phoneList = [];
+
+  void _addPhone() {
+    setState(() {
+      Map<String, dynamic> newPhone = Map();
+      newPhone['phone'] = _phoneController.text;
+      _phoneController.clear();
+      int listNum = widget.numberList;
+      print('listNum Add Phone $listNum');
+
+      phoneList.add(newPhone);
+      _userEdited = true;
+      _saveData();
+    });
+  }
+
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _cpfController = TextEditingController();
   final _phoneController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  final _ufController = TextEditingController();
   final _nameFocus = FocusNode();
+
+  DateTime dateTime = DateTime.now();
+
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -27,9 +52,17 @@ class _ContactPageState extends State<ContactPage> {
     } else {
       _editedContact = Contact.fromMap(widget.contact.toMap());
       _nameController.text = _editedContact.name;
-      _emailController.text = _editedContact.email;
+      _cpfController.text = _editedContact.cpf;
       _phoneController.text = _editedContact.phone;
+      _dateController.text = _editedContact.dateBorn;
+      _ufController.text = _editedContact.uf;
     }
+
+    _readData().then((data) {
+      setState(() {
+        phoneList = json.decode(data);
+      });
+    });
   }
 
   @override
@@ -41,38 +74,50 @@ class _ContactPageState extends State<ContactPage> {
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           padding: EdgeInsets.all(10.0),
-          child: Column(
-            children: <Widget>[
-              GestureDetector(
-                child: containerImage(),
-                // ignore: deprecated_member_use
-                onTap: () async {
-                  final picker = ImagePicker();
-                  final pickedFile =
-                      await picker.getImage(source: ImageSource.gallery);
-                  File _image = File(pickedFile.path);
-                  setState(() {
-                    _editedContact.image = _image.path;
-                  });
-                  _userEdited = true;
-                },
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 10.0),
-              ),
-              editName(),
-              Padding(
-                padding: EdgeInsets.only(top: 10.0),
-              ),
-              editEmail(),
-              Padding(
-                padding: EdgeInsets.only(top: 10.0),
-              ),
-              editPhone(),
-              Padding(
-                padding: EdgeInsets.only(top: 10.0),
-              ),
-            ],
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: <Widget>[
+                GestureDetector(
+                  child: containerImage(),
+                  // ignore: deprecated_member_use
+                  onTap: () async {
+                    final picker = ImagePicker();
+                    final pickedFile =
+                        await picker.getImage(source: ImageSource.gallery);
+                    File _image = File(pickedFile.path);
+                    setState(() {
+                      _editedContact.image = _image.path;
+                    });
+                    _userEdited = true;
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                ),
+                editName(),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                ),
+                editCpf(),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                ),
+
+                editDateBorn(),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                ),
+                editUf(),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                ),
+
+                phones(),
+
+                // PhoneForm(_editedContact),
+              ],
+            ),
           ),
         ),
       ),
@@ -99,6 +144,7 @@ class _ContactPageState extends State<ContactPage> {
                 ),
                 FlatButton(
                   onPressed: () {
+                    _deleteData();
                     //um pop para remover o dialog e outro para remover o ContactPage
                     Navigator.pop(context);
                     Navigator.pop(context);
@@ -120,8 +166,12 @@ class _ContactPageState extends State<ContactPage> {
     return FloatingActionButton(
       onPressed: () {
         if (_editedContact.name != null && _editedContact.name.isNotEmpty) {
-          //elimina o elemento de cima (a pagina inteira no caso, num esquema de pilha LiFo) e enviei o editedContact como valor
-          Navigator.pop(context, _editedContact);
+          //elimina o elemento de cima (a pagina inteira no caso, num esquema de pilha LiFo)
+          //e enviei o editedContact como valor
+          if (formKey.currentState.validate()) {
+            Navigator.pop(context, _editedContact);
+            _deleteData();
+          }
         } else {
           FocusScope.of(context).requestFocus(_nameFocus);
         }
@@ -137,12 +187,12 @@ class _ContactPageState extends State<ContactPage> {
   Widget actionBar() {
     return AppBar(
       title: Text(
-        _editedContact.name ?? "Novo Contatinho",
+        _editedContact.name ?? "Novo Cliente",
         style: TextStyle(
             color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold),
       ),
       backgroundColor: Colors.red,
-      elevation: 10.0,
+      elevation: 0.0,
       centerTitle: true,
     );
   }
@@ -183,39 +233,219 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  //editar email
-  Widget editEmail() {
-    return TextField(
+  //editar cpf
+  Widget editCpf() {
+    return TextFormField(
+      validator: (value) {
+        if (value.isEmpty) {
+          if (_ufController.text == 'SP' || _ufController.text == 'sp')
+            return 'Campo Obrigatório';
+          else
+            return null;
+        } else
+          return null;
+      },
       maxLength: 30,
-      controller: _emailController,
+      controller: _cpfController,
       textAlign: TextAlign.start,
       decoration: InputDecoration(
-        labelText: "Email",
-        prefixIcon: Icon(Icons.alternate_email),
+        labelText: "Cpf",
+        prefixIcon: Icon(Icons.insert_drive_file),
       ),
       onChanged: (text) {
         _userEdited = true;
-        _editedContact.email = text;
+        _editedContact.cpf = text;
       },
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: TextInputType.number,
+    );
+  }
+
+  //editar dateBorn
+  Widget editDateBorn() {
+    return TextFormField(
+        enableInteractiveSelection: false,
+        maxLength: 30,
+        controller: _dateController,
+        showCursor: false,
+        textAlign: TextAlign.start,
+        decoration: InputDecoration(
+          labelText: "Data Nascimento",
+          prefixIcon: Icon(Icons.date_range),
+        ),
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+
+          showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(1910),
+            lastDate: DateTime(2100),
+          ).then(
+            (value) {
+              _dateController.text =
+                  formatDate(value, [dd, '/', mm, '/', yyyy]);
+              _userEdited = true;
+              _editedContact.dateBorn = _dateController.text;
+            },
+          );
+        });
+  }
+
+  //editar uf
+  Widget editUf() {
+    return TextFormField(
+      maxLength: 2,
+      controller: _ufController,
+      textAlign: TextAlign.start,
+      decoration: InputDecoration(
+        labelText: "UF",
+        prefixIcon: Icon(Icons.location_city),
+      ),
+      onChanged: (text) {
+        _userEdited = true;
+        _editedContact.uf = text;
+      },
+      keyboardType: TextInputType.text,
+    );
+  }
+
+  Widget phones() {
+    return Container(
+      height: 400,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  maxLength: 15,
+                  controller: _phoneController,
+                  textAlign: TextAlign.start,
+                  decoration: InputDecoration(
+                    labelText: "Telefone",
+                    prefixIcon: Icon(Icons.phone_android),
+                  ),
+                  onChanged: (text) {
+                    _userEdited = true;
+                    _editedContact.phone = text;
+                  },
+                  keyboardType: TextInputType.phone,
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(left: 15, bottom: 20),
+                child: CircleAvatar(
+                  backgroundColor: Colors.redAccent,
+                  radius: 25,
+                  child: IconButton(
+                    alignment: Alignment.center,
+                    icon: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    onPressed: _addPhone,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 10.0),
+              itemBuilder: (context, index) {
+                return _editedContact.id == null
+                    ? ListTile(
+                        title: _editedContact.id == null
+                            ? Text(phoneList[index]['phone'])
+                            : null,
+                        leading: _editedContact.id == null
+                            ? Icon(Icons.phone)
+                            : null,
+                      )
+                    : Container();
+              },
+              itemCount: phoneList.length,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   //editar phone
   Widget editPhone() {
-    return TextField(
-      maxLength: 15,
-      controller: _phoneController,
-      textAlign: TextAlign.start,
-      decoration: InputDecoration(
-        labelText: "Telefone",
-        prefixIcon: Icon(Icons.phone_android),
-      ),
-      onChanged: (text) {
-        _userEdited = true;
-        _editedContact.phone = text;
-      },
-      keyboardType: TextInputType.phone,
+    return Row(
+      children: [
+        SizedBox(
+          width: 300,
+          child: TextField(
+            maxLength: 15,
+            controller: _phoneController,
+            textAlign: TextAlign.start,
+            decoration: InputDecoration(
+              labelText: "Telefone",
+              prefixIcon: Icon(Icons.phone_android),
+            ),
+            onChanged: (text) {
+              _userEdited = true;
+              _editedContact.phone = text;
+            },
+            keyboardType: TextInputType.phone,
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(left: 30, bottom: 20),
+          child: CircleAvatar(
+            backgroundColor: Colors.redAccent,
+            radius: 25,
+            child: IconButton(
+              alignment: Alignment.center,
+              icon: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 20,
+              ),
+              onPressed: () {},
+            ),
+          ),
+        )
+      ],
     );
+  }
+
+  Future<File> _getFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    directory.createSync(recursive: true);
+    int listNum = widget.numberList;
+    final bla = File("${directory.path}data.json");
+    return bla;
+    //return File("${directory.path}data.json");
+  }
+
+  Future<File> _saveData() async {
+    //transformando lista em arquivo json
+    String data = json.encode(phoneList);
+    final file = await _getFile();
+    return file.writeAsString(data);
+  }
+
+  Future<String> _readData() async {
+    try {
+      final file = await _getFile();
+      return file.readAsString();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<Null> _deleteData() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final direc = File("${directory.path}data.json");
+      direc.deleteSync(recursive: true);
+    } catch (e) {
+      return null;
+    }
   }
 }

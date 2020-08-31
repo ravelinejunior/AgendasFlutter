@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agenda_app/helper/contact_helper.dart';
 import 'package:agenda_app/ui/contact_page.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,6 +16,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   ContactHelper helper = ContactHelper();
   List<Contact> contactList = List();
+  DateTime dateTime = DateTime.now();
+  int number = 0;
 
   //quando app carregar, preparar e carregar todos os contatos ja salvos
   @override
@@ -42,7 +45,12 @@ class _HomePageState extends State<HomePage> {
   //fab
   Widget fab() {
     return FloatingActionButton(
-      onPressed: _showContactPage,
+      onPressed: () {
+        number = contactList.length;
+        print('tamanho lista init: $number');
+
+        return _showContactPage(number: number);
+      },
       child: Icon(Icons.add),
       backgroundColor: Colors.red,
       splashColor: Colors.amber,
@@ -54,11 +62,11 @@ class _HomePageState extends State<HomePage> {
   Widget actionBar() {
     return AppBar(
       title: Text(
-        "Meus Contatinhos",
+        "Minha Agenda de Clientes",
         style: TextStyle(
             color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.blueAccent,
       elevation: 10.0,
       centerTitle: true,
       actions: <Widget>[
@@ -98,6 +106,7 @@ class _HomePageState extends State<HomePage> {
 
   //contact card
   Widget _contactCard(BuildContext context, int index) {
+    String _formatDate = formatDate(dateTime, [dd, '/', mm, '/', yyyy]);
     return GestureDetector(
       child: Card(
         color: Colors.white,
@@ -125,13 +134,16 @@ class _HomePageState extends State<HomePage> {
                   children: <Widget>[
                     _textoNome(index),
                     Padding(
-                      padding: EdgeInsets.only(top: 10.0),
+                      padding: EdgeInsets.only(top: 4.0),
                     ),
-                    _textoEmail(index),
+                    _textoCpf(index),
                     Padding(
-                      padding: EdgeInsets.only(top: 10.0),
+                      padding: EdgeInsets.only(top: 4.0),
                     ),
                     _textoPhone(index),
+                    _textoDateBorn(index),
+                    _textoUf(index),
+                    Text(_formatDate),
                   ],
                 ),
               ),
@@ -141,7 +153,6 @@ class _HomePageState extends State<HomePage> {
       ),
       onTap: () {
         _showOptions(context, index);
-        //_showContactPage(contact: contactList[index]);
       },
     );
   }
@@ -175,8 +186,11 @@ class _HomePageState extends State<HomePage> {
                       padding: EdgeInsets.all(10.0),
                       child: FlatButton(
                         onPressed: () {
+                          print('Number Edit Id ${contactList[index].id}');
                           Navigator.pop(context);
-                          _showContactPage(contact: contactList[index]);
+                          _showContactPage(
+                              contact: contactList[index],
+                              number: contactList[index].id);
                         },
                         child: Text(
                           "Editar",
@@ -211,31 +225,30 @@ class _HomePageState extends State<HomePage> {
 
   //texto nome
   Widget _textoNome(int index) {
-    return SizedBox(
-      width: 270,
-      child: Text(
-        //caso nome seja vazio,
-        contactList[index].name ?? "",
-        style: TextStyle(
-          color: Colors.grey[700],
-          fontSize: 16.0,
-          fontWeight: FontWeight.bold,
-        ),
-        overflow: TextOverflow.fade,
-        softWrap: false,
+    return Text(
+      //caso nome seja vazio,
+      contactList[index].name ?? "",
+      style: TextStyle(
+        color: Colors.grey[700],
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold,
       ),
+      overflow: TextOverflow.fade,
+      softWrap: false,
     );
   }
 
-  //texto email
-  Widget _textoEmail(int index) {
+  //texto cpf
+  Widget _textoCpf(int index) {
     return Text(
       //caso nome seja vazio demais
-      contactList[index].email ?? "",
+      contactList[index].cpf != null
+          ? "CPF: ${contactList[index].cpf}"
+          : "CPF não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
         fontSize: 14.0,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
       softWrap: false,
@@ -246,7 +259,60 @@ class _HomePageState extends State<HomePage> {
   Widget _textoPhone(int index) {
     return Text(
       //caso nome seja vazio
-      contactList[index].phone ?? "",
+      contactList[index].phone != null
+          ? "Contato Principal: ${contactList[index].phone}"
+          : "Telefone não cadastrado",
+      style: TextStyle(
+        color: Colors.grey[700],
+        fontSize: 14.0,
+        fontWeight: FontWeight.bold,
+      ),
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+    );
+  }
+
+  //texto uf
+  Widget _textoUf(int index) {
+    return Text(
+      //caso fone seja vazio
+      contactList[index].uf != null
+          ? "UF: ${contactList[index].uf}".toUpperCase()
+          : "UF não cadastrado",
+      style: TextStyle(
+        color: Colors.grey[700],
+        fontSize: 14.0,
+        fontWeight: FontWeight.bold,
+      ),
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+    );
+  }
+
+  //texto date
+  Widget _textoDateBorn(int index) {
+    return Text(
+      //caso nome seja vazio
+      contactList[index].dateBorn != null
+          ? "Data Nascimento: ${contactList[index].dateBorn}"
+          : "Data Nascimento não cadastrada",
+      style: TextStyle(
+        color: Colors.grey[700],
+        fontSize: 14.0,
+        fontWeight: FontWeight.bold,
+      ),
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+    );
+  }
+
+  //texto datereg
+  Widget _textoDateRegister(int index) {
+    return Text(
+      //caso nome seja vazio
+      contactList[index].dateRegister != null
+          ? "Ativo desde: ${contactList[index].dateRegister}"
+          : "Não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
         fontSize: 14.0,
@@ -258,13 +324,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   //exibir tela de contatos
-  void _showContactPage({Contact contact}) async {
+  void _showContactPage({Contact contact, int number}) async {
+    number = contactList.length;
+    if (number == 0) number = 1;
+    print('List Size $number');
     final recContact = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ContactPage(
-          contact: contact,
-        ),
+        builder: (context) => ContactPage(contact: contact, numberList: number),
       ),
     );
 //caso ele receba um novo contato

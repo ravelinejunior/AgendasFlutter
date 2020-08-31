@@ -1,11 +1,17 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 final String idColumn = "idColumn";
 final String nameColumn = "nameColumn";
-final String emailColumn = "emailColumn";
+
 final String imageColumn = "imageColumn";
 final String phoneColumn = "phoneColumn";
+final String phonesColumn = "phonesColumn";
+final String cpfColumn = "cpfColumn";
+final String ufColumn = "ufColumn";
+final String dateBornColumn = "dateBornColumn";
+final String dateRegisterColumn = "dateRegisterColumn";
 final String contactTable = "contactTable";
 
 class ContactHelper {
@@ -36,11 +42,16 @@ class ContactHelper {
     return await openDatabase(path,
         version: 1,
         onCreate: (db, newerVersion) async => await db.execute(
-            "CREATE TABLE $contactTable($idColumn INTEGER PRIMARY KEY," +
-                " $nameColumn TEXT, " +
-                "$emailColumn TEXT," +
-                "$phoneColumn TEXT," +
-                "$imageColumn TEXT)"));
+              "CREATE TABLE $contactTable($idColumn INTEGER PRIMARY KEY," +
+                  " $nameColumn TEXT, " +
+                  "$phoneColumn TEXT," +
+                  "$imageColumn TEXT," +
+                  "$cpfColumn TEXT," +
+                  "$ufColumn TEXT," +
+                  "$dateBornColumn TEXT," +
+                  "$dateRegisterColumn TEXT ," +
+                  "$phonesColumn TEXT ) ",
+            ));
   }
 
 //salvar contato
@@ -56,7 +67,16 @@ class ContactHelper {
   Future<Contact> getContact(int id) async {
     Database dbContact = await db;
     List<Map> maps = await dbContact.query(contactTable,
-        columns: [idColumn, nameColumn, emailColumn, phoneColumn, imageColumn],
+        columns: [
+          idColumn,
+          nameColumn,
+          phoneColumn,
+          imageColumn,
+          dateBornColumn,
+          dateRegisterColumn,
+          cpfColumn,
+          phonesColumn
+        ],
         where: "$idColumn = ?",
         whereArgs: [id]);
 
@@ -98,6 +118,8 @@ class ContactHelper {
         await dbContact.rawQuery("SELECT COUNT(*) FROM $contactTable"));
   }
 
+  //obter numeros
+
   //fechar o banco de dados
   Future closeDb() async {
     Database dbContact = await db;
@@ -110,28 +132,38 @@ class ContactHelper {
 class Contact {
   int id;
   String name;
-  String email;
   String phone;
   String image;
-
+  String uf;
+  String cpf;
+  String dateRegister;
+  String dateBorn;
+  List<String> phones;
   Contact();
-
   Contact.fromMap(Map map) {
     // para armazenar os contatos em forma de mapas
     id = map[idColumn];
     name = map[nameColumn];
-    email = map[emailColumn];
     phone = map[phoneColumn];
     image = map[imageColumn];
+    uf = map[ufColumn];
+    dateBorn = map[dateBornColumn];
+    dateRegister = map[dateRegisterColumn];
+    cpf = map[cpfColumn];
+    phones = map[phonesColumn];
   }
 
   //para transformar os dados das colunas em maps
   Map toMap() {
     Map<String, dynamic> map = {
       nameColumn: name,
-      emailColumn: email,
       phoneColumn: phone,
-      imageColumn: image
+      imageColumn: image,
+      ufColumn: uf,
+      dateBornColumn: dateBorn,
+      dateRegisterColumn: dateRegister,
+      cpfColumn: cpf,
+      phonesColumn: phones
     };
     if (id != null) {
       map[idColumn] = id;
@@ -141,6 +173,6 @@ class Contact {
 
   @override
   String toString() {
-    return "Contatc(id: $id, name: $name, email: $email, phone: $phone, image: $image)";
+    return "Contatc(id: $id, name: $name, phone: $phone, image: $image)";
   }
 }
