@@ -26,7 +26,6 @@ class _ContactPageState extends State<ContactPage> {
         Map<String, dynamic> newPhone = Map();
         newPhone['phone'] = _phoneController.text;
         _phoneController.clear();
-
         phoneList.add(newPhone);
         _userEdited = true;
         _saveData();
