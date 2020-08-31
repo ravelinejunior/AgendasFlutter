@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:agenda_app/helper/contact_helper.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -34,13 +35,15 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   final _nameController = TextEditingController();
-  final _cpfController = TextEditingController();
-  final _phoneController = TextEditingController();
-  TextEditingController _dateController = TextEditingController();
+  final _cpfController = MaskedTextController(mask: '000.000.000-00');
+  final _phoneController = MaskedTextController(mask: '(00) 00000-0000');
+  final _dateController = TextEditingController();
   final _ufController = TextEditingController();
   final _nameFocus = FocusNode();
 
   DateTime dateTime = DateTime.now();
+
+  bool majorAge = true;
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -165,20 +168,41 @@ class _ContactPageState extends State<ContactPage> {
   Widget fab() {
     return FloatingActionButton(
       onPressed: () {
-        if (_editedContact.name != null && _editedContact.name.isNotEmpty) {
+        if (_editedContact.name != null &&
+            _editedContact.name.isNotEmpty &&
+            majorAge) {
           //elimina o elemento de cima (a pagina inteira no caso, num esquema de pilha LiFo)
           //e enviei o editedContact como valor
           if (formKey.currentState.validate()) {
+            String _formatDate = formatDate(dateTime, [dd, '/', mm, '/', yyyy]);
+
+            _editedContact.dateRegister = _formatDate;
             Navigator.pop(context, _editedContact);
             _deleteData();
           }
+        } else if (!majorAge) {
+          showDialog(
+              context: context,
+              child: AlertDialog(
+                title: Text('Idade do cliente não permitida'),
+                content: Text(
+                    'Cliente deve ter no minino 18 anos para ser cadastrado no sistema.'),
+                actions: [
+                  FlatButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Cancelar"),
+                  ),
+                ],
+              ));
         } else {
           FocusScope.of(context).requestFocus(_nameFocus);
         }
       },
       child: Icon(Icons.save),
       backgroundColor: Colors.red,
-      splashColor: Colors.amber,
+      splashColor: Colors.orange,
       foregroundColor: Colors.white,
     );
   }
@@ -207,7 +231,7 @@ class _ContactPageState extends State<ContactPage> {
         image: DecorationImage(
             image: _editedContact.image != null
                 ? FileImage(File(_editedContact.image))
-                : AssetImage("images/couple.png"),
+                : AssetImage("images/icon.png"),
             fit: BoxFit.cover),
       ),
     );
@@ -238,7 +262,9 @@ class _ContactPageState extends State<ContactPage> {
     return TextFormField(
       validator: (value) {
         if (value.isEmpty) {
-          if (_ufController.text == 'SP' || _ufController.text == 'sp')
+          if (_ufController.text == 'SP' ||
+              _ufController.text == 'sp' ||
+              _ufController.text == 'Sp')
             return 'Campo Obrigatório';
           else
             return null;
@@ -263,8 +289,19 @@ class _ContactPageState extends State<ContactPage> {
   //editar dateBorn
   Widget editDateBorn() {
     return TextFormField(
+        validator: (value) {
+          if (value.isEmpty) {
+            if (_ufController.text == 'MG' ||
+                _ufController.text == 'mg' ||
+                _ufController.text == 'Mg')
+              return 'Cliente deve ser maior de idade.';
+            else
+              return null;
+          } else
+            return null;
+        },
         enableInteractiveSelection: false,
-        maxLength: 30,
+        maxLength: 12,
         controller: _dateController,
         showCursor: false,
         textAlign: TextAlign.start,
@@ -284,6 +321,17 @@ class _ContactPageState extends State<ContactPage> {
             (value) {
               _dateController.text =
                   formatDate(value, [dd, '/', mm, '/', yyyy]);
+
+              var _formatDateYear =
+                  int.parse(formatDate(DateTime.now(), [yyyy]));
+
+              int year = value.year;
+
+              if (_formatDateYear - year >= 18)
+                majorAge = true;
+              else
+                majorAge = false;
+
               _userEdited = true;
               _editedContact.dateBorn = _dateController.text;
             },
@@ -417,7 +465,6 @@ class _ContactPageState extends State<ContactPage> {
   Future<File> _getFile() async {
     final directory = await getApplicationDocumentsDirectory();
     directory.createSync(recursive: true);
-    int listNum = widget.numberList;
     final bla = File("${directory.path}data.json");
     return bla;
     //return File("${directory.path}data.json");

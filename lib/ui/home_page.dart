@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:agenda_app/helper/contact_helper.dart';
 import 'package:agenda_app/ui/contact_page.dart';
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -46,13 +45,10 @@ class _HomePageState extends State<HomePage> {
   Widget fab() {
     return FloatingActionButton(
       onPressed: () {
-        number = contactList.length;
-        print('tamanho lista init: $number');
-
-        return _showContactPage(number: number);
+        return _showContactPage();
       },
       child: Icon(Icons.add),
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.indigo,
       splashColor: Colors.amber,
       foregroundColor: Colors.white,
     );
@@ -106,7 +102,6 @@ class _HomePageState extends State<HomePage> {
 
   //contact card
   Widget _contactCard(BuildContext context, int index) {
-    String _formatDate = formatDate(dateTime, [dd, '/', mm, '/', yyyy]);
     return GestureDetector(
       child: Card(
         color: Colors.white,
@@ -123,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                   image: DecorationImage(
                       image: contactList[index].image != null
                           ? FileImage(File(contactList[index].image))
-                          : AssetImage("images/couple.png"),
+                          : AssetImage("images/icon.png"),
                       fit: BoxFit.cover),
                 ),
               ),
@@ -133,17 +128,16 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     _textoNome(index),
-                    Padding(
-                      padding: EdgeInsets.only(top: 4.0),
-                    ),
+                    SizedBox(height: 10),
                     _textoCpf(index),
-                    Padding(
-                      padding: EdgeInsets.only(top: 4.0),
-                    ),
+                    SizedBox(height: 6),
                     _textoPhone(index),
+                    SizedBox(height: 6),
                     _textoDateBorn(index),
+                    SizedBox(height: 6),
                     _textoUf(index),
-                    Text(_formatDate),
+                    SizedBox(height: 6),
+                    _textoDateRegister(index),
                   ],
                 ),
               ),
@@ -182,7 +176,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    Padding(
+                    /*  Padding(
                       padding: EdgeInsets.all(10.0),
                       child: FlatButton(
                         onPressed: () {
@@ -197,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(color: Colors.red, fontSize: 20.0),
                         ),
                       ),
-                    ),
+                    ), */
                     Padding(
                       padding: EdgeInsets.all(10.0),
                       child: FlatButton(
@@ -229,7 +223,7 @@ class _HomePageState extends State<HomePage> {
       //caso nome seja vazio,
       contactList[index].name ?? "",
       style: TextStyle(
-        color: Colors.grey[700],
+        color: Colors.black87,
         fontSize: 18.0,
         fontWeight: FontWeight.bold,
       ),
@@ -247,7 +241,7 @@ class _HomePageState extends State<HomePage> {
           : "CPF não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -260,11 +254,11 @@ class _HomePageState extends State<HomePage> {
     return Text(
       //caso nome seja vazio
       contactList[index].phone != null
-          ? "Contato Principal: ${contactList[index].phone}"
+          ? "Telefone: ${contactList[index].phone}"
           : "Telefone não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -281,7 +275,7 @@ class _HomePageState extends State<HomePage> {
           : "UF não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -298,7 +292,7 @@ class _HomePageState extends State<HomePage> {
           : "Data Nascimento não cadastrada",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -311,12 +305,12 @@ class _HomePageState extends State<HomePage> {
     return Text(
       //caso nome seja vazio
       contactList[index].dateRegister != null
-          ? "Ativo desde: ${contactList[index].dateRegister}"
-          : "Não cadastrado",
+          ? "Data registro: ${contactList[index].dateRegister}"
+          : "Data registro não cadastrada",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 14.0,
-        fontWeight: FontWeight.normal,
+        fontSize: 16.0,
+        fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
       softWrap: false,
