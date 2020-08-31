@@ -21,17 +21,16 @@ class _ContactPageState extends State<ContactPage> {
   List phoneList = [];
 
   void _addPhone() {
-    setState(() {
-      Map<String, dynamic> newPhone = Map();
-      newPhone['phone'] = _phoneController.text;
-      _phoneController.clear();
-      int listNum = widget.numberList;
-      print('listNum Add Phone $listNum');
+    if (_phoneController.text.isNotEmpty)
+      setState(() {
+        Map<String, dynamic> newPhone = Map();
+        newPhone['phone'] = _phoneController.text;
+        _phoneController.clear();
 
-      phoneList.add(newPhone);
-      _userEdited = true;
-      _saveData();
-    });
+        phoneList.add(newPhone);
+        _userEdited = true;
+        _saveData();
+      });
   }
 
   final _nameController = TextEditingController();
@@ -106,7 +105,6 @@ class _ContactPageState extends State<ContactPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 10.0),
                 ),
-
                 editDateBorn(),
                 Padding(
                   padding: EdgeInsets.only(top: 10.0),
@@ -115,10 +113,7 @@ class _ContactPageState extends State<ContactPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 10.0),
                 ),
-
                 phones(),
-
-                // PhoneForm(_editedContact),
               ],
             ),
           ),
@@ -192,7 +187,7 @@ class _ContactPageState extends State<ContactPage> {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text("Cancelar"),
+                    child: Text("Ok"),
                   ),
                 ],
               ));
@@ -271,7 +266,7 @@ class _ContactPageState extends State<ContactPage> {
         } else
           return null;
       },
-      maxLength: 30,
+      maxLength: 15,
       controller: _cpfController,
       textAlign: TextAlign.start,
       decoration: InputDecoration(
@@ -300,8 +295,8 @@ class _ContactPageState extends State<ContactPage> {
           } else
             return null;
         },
-        enableInteractiveSelection: false,
         maxLength: 12,
+        enableInteractiveSelection: false,
         controller: _dateController,
         showCursor: false,
         textAlign: TextAlign.start,
@@ -365,7 +360,7 @@ class _ContactPageState extends State<ContactPage> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   maxLength: 15,
                   controller: _phoneController,
                   textAlign: TextAlign.start,

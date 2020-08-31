@@ -5,7 +5,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 void main() {
   runApp(MaterialApp(
     localizationsDelegates: [
-      // ... app-specific localization delegate[s] here
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,

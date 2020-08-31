@@ -176,22 +176,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    /*  Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: FlatButton(
-                        onPressed: () {
-                          print('Number Edit Id ${contactList[index].id}');
-                          Navigator.pop(context);
-                          _showContactPage(
-                              contact: contactList[index],
-                              number: contactList[index].id);
-                        },
-                        child: Text(
-                          "Editar",
-                          style: TextStyle(color: Colors.red, fontSize: 20.0),
-                        ),
-                      ),
-                    ), */
                     Padding(
                       padding: EdgeInsets.all(10.0),
                       child: FlatButton(
@@ -343,7 +327,7 @@ class _HomePageState extends State<HomePage> {
 
   void _getAllContacts() {
     helper.getAllContacts().then(
-          (list) => //para atualizar a lista, setar um setState
+          (list) => //para atualizar a lista
               setState(() {
             contactList = list;
           }),
