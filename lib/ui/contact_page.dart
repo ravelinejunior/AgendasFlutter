@@ -162,9 +162,6 @@ class _ContactPageState extends State<ContactPage> {
   Widget fab() {
     return FloatingActionButton(
       onPressed: () {
-        String _formatDateHour =
-            formatDate(dateTime, [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn]);
-        print('Hora data $_formatDateHour');
         if (_editedContact.name != null &&
             _editedContact.name.isNotEmpty &&
             majorAge) {
@@ -332,6 +329,8 @@ class _ContactPageState extends State<ContactPage> {
                   majorAge = true;
                 else
                   majorAge = false;
+              } else {
+                majorAge = true;
               }
 
               _userEdited = true;
