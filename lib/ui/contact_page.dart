@@ -162,13 +162,17 @@ class _ContactPageState extends State<ContactPage> {
   Widget fab() {
     return FloatingActionButton(
       onPressed: () {
+        String _formatDateHour =
+            formatDate(dateTime, [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn]);
+        print('Hora data $_formatDateHour');
         if (_editedContact.name != null &&
             _editedContact.name.isNotEmpty &&
             majorAge) {
           //elimina o elemento de cima (a pagina inteira no caso, num esquema de pilha LiFo)
           //e enviei o editedContact como valor
           if (formKey.currentState.validate()) {
-            String _formatDate = formatDate(dateTime, [dd, '/', mm, '/', yyyy]);
+            String _formatDate = formatDate(
+                dateTime, [dd, '/', mm, '/', yyyy, ' às ', HH, ':', nn]);
 
             _editedContact.dateRegister = _formatDate;
             Navigator.pop(context, _editedContact);

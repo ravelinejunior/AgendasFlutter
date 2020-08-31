@@ -225,7 +225,7 @@ class _HomePageState extends State<HomePage> {
           : "CPF não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 16.0,
+        fontSize: 15.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> {
           : "Telefone não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 16.0,
+        fontSize: 15.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -259,7 +259,7 @@ class _HomePageState extends State<HomePage> {
           : "UF não cadastrado",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 16.0,
+        fontSize: 15.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -276,7 +276,7 @@ class _HomePageState extends State<HomePage> {
           : "Data Nascimento não cadastrada",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 16.0,
+        fontSize: 15.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
@@ -293,7 +293,7 @@ class _HomePageState extends State<HomePage> {
           : "Data registro não cadastrada",
       style: TextStyle(
         color: Colors.grey[700],
-        fontSize: 16.0,
+        fontSize: 14.0,
         fontWeight: FontWeight.bold,
       ),
       overflow: TextOverflow.ellipsis,
