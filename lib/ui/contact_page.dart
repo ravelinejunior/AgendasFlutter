@@ -321,10 +321,14 @@ class _ContactPageState extends State<ContactPage> {
 
               int year = value.year;
 
-              if (_formatDateYear - year >= 18)
-                majorAge = true;
-              else
-                majorAge = false;
+              if (_ufController.text == 'MG' ||
+                  _ufController.text == 'mg' ||
+                  _ufController.text == 'Mg') {
+                if (_formatDateYear - year >= 18)
+                  majorAge = true;
+                else
+                  majorAge = false;
+              }
 
               _userEdited = true;
               _editedContact.dateBorn = _dateController.text;
