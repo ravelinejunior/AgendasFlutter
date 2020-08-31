@@ -22,7 +22,5 @@ REGRAS:
 - Caso a UF seja de MG, não permitir cadastrar clientes menores de 18 anos;
 
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
 
