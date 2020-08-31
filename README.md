@@ -1,16 +1,26 @@
 # agenda_app
 
-A new Flutter project.
+Projeto requisitado como teste para processo seletivo da MaxProcess
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+DESAFIO:
 
-A few resources to get you started if this is your first Flutter project:
+Elaborar uma agenda simples de clientes, este cadastro contemplará os seguintes campos:
+- Nome
+- CPF
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Data de nascimento
+- UF
+- Telefones (a quantidade de telefones é variável)
+
+
+ 
+REGRAS:
+- Caso a UF seja de SP, o campo de CPF será de preenchimento obrigatório;
+- Caso a UF seja de MG, não permitir cadastrar clientes menores de 18 anos;
+
+
+
+
